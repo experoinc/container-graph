@@ -1,0 +1,14 @@
+*.log
+target/
+.idea/
+*.iml
+*.DS_Store
+
+# Emacs file backups
+*~
+# Nano file backups
+*.save
+# Vim file backups
+*.swp
+
+dependency-reduced-pom.xml

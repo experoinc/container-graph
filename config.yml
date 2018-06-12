@@ -1,0 +1,12 @@
+logging:
+  level: INFO
+  loggers:
+    com.experoinc: INFO
+tinkerPop:
+  contactPoints:
+    - 127.0.0.1
+  port: 8182
+  serializer:
+    type: gryoMessageSerializerV1d0
+    ioRegistries:
+      - org.janusgraph.graphdb.tinkerpop.JanusGraphIoRegistry
