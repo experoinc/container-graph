@@ -2,7 +2,7 @@
 Container Graph is demo Dropwizard service that runs against [JanusGraph](janusgraph.org).
 
 # Building
-This demo application requires Java 8 and Maven 3. To build run:
+This demo application requires Java 8 and Maven. To build run:
 `mvn clean install`
 This will produce the following uberjar `target/container-graph-0.1.0.jar`.
 

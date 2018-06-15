@@ -49,6 +49,8 @@ public class LoadGraph {
                 "mgmt.makePropertyKey('application').dataType(String.class).make()\n" +
                 "mgmt.makePropertyKey('ipAddress').dataType(String.class).make()\n" +
                 "mgmt.makePropertyKey('clientId').dataType(Integer.class).make()\n" +
+                "containerId = mgmt.makePropertyKey('containerId').dataType(Integer.class).make()\n" +
+                "mgmt.buildIndex('containerById', Vertex.class).addKey(containerId).buildCompositeIndex()\n" +
                 "mgmt.commit()\n" +
                 "return true";
 
@@ -62,13 +64,13 @@ public class LoadGraph {
             for (int i = 0; i < 50; i++) clientIds.add(i);
             g.inject(clientIds).unfold().as("clientId").addV("Client").property("clientId", select("clientId")).store("clients").fold()
                     .addV("Service").property("name", "Google Kubernetes Engine").as("gke")
-                    .addV("Container").property("application", "JanusGraph").as("jg1")
-                    .addV("Container").property("application", "JanusGraph").as("jg2")
-                    .addV("Container").property("application", "JanusGraph").as("jg3")
-                    .addV("Container").property("application", "Elasticsearch").as("elastic")
-                    .addV("Container").property("application", "API").property("ip_address", "10.1.0.1").as("api1").store("apis")
-                    .addV("Container").property("application", "API").property("ip_address", "10.1.0.2").as("api2").store("apis")
-                    .addV("Container").property("application", "API").property("ip_address", "10.1.0.3").as("api3").store("apis")
+                    .addV("Container").property("application", "JanusGraph").property("containerId", 1).as("jg1")
+                    .addV("Container").property("application", "JanusGraph").property("containerId", 2).as("jg2")
+                    .addV("Container").property("application", "JanusGraph").property("containerId", 3).as("jg3")
+                    .addV("Container").property("application", "Elasticsearch").property("containerId", 4).as("elastic")
+                    .addV("Container").property("application", "API").property("containerId", 5).property("ipAddress", "10.1.0.1").as("api1").store("apis")
+                    .addV("Container").property("application", "API").property("containerId", 6).property("ipAddress", "10.1.0.2").as("api2").store("apis")
+                    .addV("Container").property("application", "API").property("containerId", 7).property("ipAddress", "10.1.0.3").as("api3").store("apis")
                     .addV("Service").property("name", "Cloud Bigtable").as("bigtable")
                     .addE("hosts").from("gke").to("jg1")
                     .addE("hosts").from("gke").to("jg2")

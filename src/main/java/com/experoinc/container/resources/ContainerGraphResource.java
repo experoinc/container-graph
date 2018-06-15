@@ -26,9 +26,12 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.Order.decr;
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.both;
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.in;
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.out;
+import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.repeat;
+import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.select;
 
 /**
  * @author twilmes
@@ -36,11 +39,11 @@ import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.out;
 
 @Path("/containers")
 @Produces(MediaType.APPLICATION_JSON)
-public class ContainerResource {
+public class ContainerGraphResource {
 
     private final GraphTraversalSource g;
 
-    public ContainerResource(final GraphTraversalSource g) {
+    public ContainerGraphResource(final GraphTraversalSource g) {
         this.g = g;
     }
 
@@ -52,25 +55,38 @@ public class ContainerResource {
     @GET
     @Path("{id}")
     public Map<String, Object> getContainer(@PathParam("id") long containerId) {
-        return g.V(containerId).hasLabel("Container").valueMap().next();
+        return g.V().has("Container", "containerId", containerId).valueMap().next();
     }
 
 
     @GET
     @Path("{id}/connectedTo")
-    public List<Map<String, Object>> connectedTo(@PathParam("id") long applicationId, @DefaultValue("1") @QueryParam("hops")  int hops) {
-        return g.V(applicationId).repeat(both("connectsTo")).times(hops).dedup().valueMap().toList();
+    public List<Map<String, Object>> connectedTo(@PathParam("id") long containerId, @DefaultValue("1") @QueryParam("hops")  int hops) {
+        return g.V().has("Container", "containerId", containerId)
+                .repeat(both("connectsTo")).times(hops).dedup().valueMap().toList();
     }
 
     @GET
-    @Path("{id}/dependsOn")
-    public List<Map<String, Object>> dependsOn(@PathParam("id") long applicationId) {
-        return g.V(applicationId).repeat(out("connectsTo")).emit().valueMap().toList();
+    @Path("{id}/upstream")
+    public List<Map<String, Object>> getUpstream(@PathParam("id") long containerId) {
+        return g.V().has("Container", "containerId", containerId)
+                .repeat(out("connectsTo")).emit().dedup().valueMap().toList();
     }
 
     @GET
-    @Path("{id}/dependencyOf")
-    public List<Map<String, Object>> dependencyOf(@PathParam("id") long applicationId) {
-        return g.V(applicationId).repeat(in("connectsTo")).emit().valueMap().toList();
+    @Path("{id}/downstream")
+    public List<Map<String, Object>> getDownstream(@PathParam("id") long containerId) {
+        return g.V().has("Container", "containerId", containerId)
+                .repeat(in("connectsTo")).emit().dedup().valueMap().toList();
+    }
+
+    @GET
+    @Path("/dependencyStats")
+    public List<Map<String, Object>> getDependencyStats() {
+        return g.V().hasLabel("Container")
+                .project("containerId", "dependencies")
+                    .by("containerId")
+                    .by(repeat(out("connectsTo")).emit().dedup().count())
+                        .order().by(select("dependencies"), decr).toList();
     }
 }

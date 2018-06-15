@@ -16,7 +16,7 @@ package com.experoinc.container;
 
 import com.experoinc.container.configuration.ContainerGraphConfiguration;
 import com.experoinc.container.data.LoadGraph;
-import com.experoinc.container.resources.ContainerResource;
+import com.experoinc.container.resources.ContainerGraphResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
@@ -44,8 +44,8 @@ public class ContainerGraphApplication extends Application<ContainerGraphConfigu
         LoadGraph.setupSchema(cluster.connect());
         LoadGraph.loadData(g);
 
-        final ContainerResource containerResource = new ContainerResource(g);
+        final ContainerGraphResource containerGraphResource = new ContainerGraphResource(g);
 
-        environment.jersey().register(containerResource);
+        environment.jersey().register(containerGraphResource);
     }
 }
