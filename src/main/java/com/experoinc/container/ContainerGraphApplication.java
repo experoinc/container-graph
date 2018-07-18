@@ -17,7 +17,11 @@ package com.experoinc.container;
 import com.experoinc.container.configuration.ContainerGraphConfiguration;
 import com.experoinc.container.data.LoadGraph;
 import com.experoinc.container.resources.ContainerGraphResource;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.dropwizard.Application;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
@@ -33,6 +37,15 @@ public class ContainerGraphApplication extends Application<ContainerGraphConfigu
     public static void main(String[] args) throws Exception {
         new ContainerGraphApplication().run(args);
     }
+
+    @Override
+    public void initialize(Bootstrap<ContainerGraphConfiguration> bootstrap) {
+        // enable using environment variables in yml files
+        final SubstitutingSourceProvider envSourceProvider = new SubstitutingSourceProvider(
+                bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false));
+        bootstrap.setConfigurationSourceProvider(envSourceProvider);
+    }
+
 
     public void run(ContainerGraphConfiguration configuration,
                     Environment environment) {

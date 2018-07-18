@@ -4,7 +4,7 @@ logging:
     com.experoinc: INFO
 tinkerPop:
   contactPoints:
-    - 127.0.0.1
+    - ${JANUSGRAPH_IP:-127.0.0.1}
   port: 8182
   serializer:
     type: gryoMessageSerializerV1d0
